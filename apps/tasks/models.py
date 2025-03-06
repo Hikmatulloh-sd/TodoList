@@ -5,7 +5,7 @@ class Task(models.Model):
     class Meta:
         verbose_name = 'Задача'
         verbose_name_plural = 'Задачи'
-        
+
     title = models.CharField(
         max_length=255,
         verbose_name='Название задачи'
@@ -15,7 +15,7 @@ class Task(models.Model):
     )
     status  = models.BooleanField(
         default=False,
-        verbose_name='Статус задачи'
+        verbose_name='Статус задачи',
     )
     updated_at = models.DateTimeField(
         auto_now=True,

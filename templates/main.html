@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Todo List</h1>
+
+        <div class="create-form">
+            <h2>Добавить задачу</h2>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="text" placeholder="Название задачи" name="title"><br>
+                <textarea name="description" placeholder="Описание задачи"></textarea><br>
+                <div class="form-buttons">
+                    <button type="reset" class="reset">Очистить</button>
+                    <button type="submit" class="submit">Добавить</button>
+                </div>
+            </form>
+        </div>
+
+        <hr>
+
+        <h2>Список задач</h2>
+        
+        <div class="tasks">
+            {% for task in tasks %}
+            <div class="task">
+                <h3>{{ task.title }}</h3>
+                <p>{{ task.description }}</p>
+                {% if task.status == False %}
+                <p class="status">Статус: не выполнено</p>
+                {% else %}
+                <p class="status">Статус: выполнено</p>
+                {% endif %}
+
+                <button class="edit-btn">✏️</button>
+                <form method="POST" style="display: inline-block;">
+                    {% csrf_token %}
+                    <input type="hidden" name="task_id" value="{{ task.id }}">
+                    <input type="hidden" name="delete" value="true">
+                    <button class="delete">Удалить</button>
+                </form>
+
+                <form class="edit-form" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="task_id" value="{{ task.id }}">
+                    <input type="text" placeholder="Новое название" name="title" value="{{ task.title }}"><br>
+                    <textarea name="description" placeholder="Новое описание">{{ task.description }}</textarea><br>
+                    <label for="status">Статус задачи:</label>
+                    <select name="status" id="status">
+                        <option value="False" {% if task.status == False %}selected{% endif %}>не выполнено</option>
+                        <option value="True" {% if task.status == True %}selected{% endif %}>выполнено</option>
+                    </select><br>
+                    <button type="submit" class="submit">Сохранить</button>
+                </form>
+            </div>
+            {% empty %}
+            <h3>Нет задач</h3>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.edit-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const form = button.nextElementSibling.nextElementSibling;
+                form.classList.toggle('show');
+            });
+        });
+
+        document.querySelectorAll('.edit-form').forEach(form => {
+            form.addEventListener('submit', (event) => {
+                // Убираем event.preventDefault() чтобы форма отправлялась
+                const task = form.closest('.task');
+                const status = form.querySelector('select[name="status"]').value;
+                const statusText = task.querySelector('.status');
+                
+                // Обновляем статус в отображении
+                if (status === "False") {
+                    statusText.textContent = "Статус: не выполнено";
+                } else if (status === "True") {
+                    statusText.textContent = "Статус: выполнено";
+                }
+
+                form.classList.remove('show');
+            });
+        });
+    </script>
+</body>
+</html>
